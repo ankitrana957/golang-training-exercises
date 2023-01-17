@@ -6,7 +6,7 @@ import (
 )
 
 func TestFibonacciNumberL5(t *testing.T) {
-	call := FibonacciSeries() //Slice
+	call := FibonacciSeries()
 	got := call(5)
 	want := []int{0, 1, 1, 2, 3}
 	if !reflect.DeepEqual(got, want) {
@@ -15,7 +15,7 @@ func TestFibonacciNumberL5(t *testing.T) {
 }
 
 func TestFibonacciNumberL2(t *testing.T) {
-	call := FibonacciSeries() //Slice
+	call := FibonacciSeries()
 	got := call(2)
 	want := []int{0, 1}
 	if !reflect.DeepEqual(got, want) {
@@ -24,7 +24,7 @@ func TestFibonacciNumberL2(t *testing.T) {
 }
 
 func TestFibonacciNumberL1(t *testing.T) {
-	call := FibonacciSeries() //Slice
+	call := FibonacciSeries()
 	got := call(1)
 	want := []int{0}
 	if !reflect.DeepEqual(got, want) {

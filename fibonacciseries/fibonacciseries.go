@@ -3,7 +3,7 @@ package fibonacciseries
 func FibonacciSeries() func(int) []int {
 	a := []int{}
 	return func(n int) []int {
-		var v int = 0
+		var v = 0
 		if len(a) > n {
 			return a[:n]
 		}
@@ -24,5 +24,4 @@ func FibonacciSeries() func(int) []int {
 		}
 		return a
 	}
-
 }
