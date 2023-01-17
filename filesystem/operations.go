@@ -3,7 +3,6 @@ package filesystem
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -17,7 +16,7 @@ type Student struct {
 func CreateJsonFile(name string) (myfile *os.File) {
 	myfile, e := os.Create(name)
 	if e != nil {
-		log.Fatal(e)
+		panic("Error in creation of file")
 	}
 	return myfile
 }
@@ -25,7 +24,7 @@ func CreateJsonFile(name string) (myfile *os.File) {
 func ReadFromJson() []byte {
 	myfile, err := os.Open("data.json")
 	if err != nil {
-		log.Fatal(err)
+		panic("Error in reading from the data file")
 	}
 	byteValue, _ := ioutil.ReadAll(myfile)
 	defer myfile.Close()
@@ -51,7 +50,7 @@ func WriteFile(primary, secondary []Student) {
 	a, err := json.Marshal(primary)
 	b, err1 := json.Marshal(secondary)
 	if err != nil && err1 != nil {
-		log.Fatal(err)
+		panic("Error in marshaling the data")
 	}
 	primaryFile := CreateJsonFile("primaryData.json")
 	primaryFile.WriteString(string(a))
