@@ -3,8 +3,6 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -31,65 +29,38 @@ type person struct {
 	Phn  string
 }
 
-type config struct {
-	user     string
-	password string
-	host     string
-	port     string
-	database string
+type handler struct {
+	*sql.DB
 }
 
-var cred = config{
-	user:     "root",
-	password: "root",
-	host:     "localhost",
-	port:     "3306",
-	database: "student",
+func connectToDatabase() handler {
+	database, _ := sql.Open("mysql", "root:root@tcp(localhost:3306)/student")
+	return handler{database}
 }
 
-func establishConnection(driverName, dataSourceName string) *sql.DB {
-	db, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		panic(err.Error())
-	}
-	return &(*db)
-}
-
-func getDataSourceName(cred config) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cred.user, cred.password, cred.host, cred.port, cred.database)
-}
-
-func retrievingData(c *sql.DB) (s []person, err error) {
-	rows, err := c.Query("SELECT * FROM personDetails")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var stud person
-		err := rows.Scan(&stud.Name, &stud.Age, &stud.Phn)
+func (h handler) GetData(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/student":
+		s := []person{}
+		rows, err := h.Query("SELECT * FROM personDetails")
 		if err != nil {
-			return nil, err
+			return
 		}
-		s = append(s, stud)
+		defer rows.Close()
+		for rows.Next() {
+			var stud person
+			rows.Scan(&stud.Name, &stud.Age, &stud.Phn)
+			s = append(s, stud)
+		}
+		json.NewEncoder(w).Encode(s)
+	case "/ping":
+		s := "Pong"
+		w.Write([]byte(s))
+		return
+	default:
+		s := "Wrong Url"
+		w.Write([]byte(s))
+		return
 	}
-	return s, nil
-}
-
-func getStudent(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/get/student" {
-		src := getDataSourceName(cred)
-		db := establishConnection("mysql", src)
-		data, _ := retrievingData(db)
-		json.NewEncoder(w).Encode(data)
-	} else if r.URL.Path == "/ping" {
-		w.Write([]byte("Pong"))
-	} else {
-		b := fmt.Sprintf("Wrong Url %s", r.URL.Path)
-		w.Write([]byte(b))
-	}
-}
-
-func StartServer() {
-	log.Fatal(http.ListenAndServe(":8000", http.HandlerFunc(getStudent)))
+	w.WriteHeader(200)
 }
