@@ -1,4 +1,4 @@
-package stores
+package student
 
 import (
 	"database/sql"
@@ -13,7 +13,7 @@ type Sqldb struct {
 
 func (db Sqldb) GetAll() ([]models.Student, error) {
 	var s []models.Student
-	rows, err := db.Query("Select * from studentDetails")
+	rows, err := db.Query("SELECT * FROM studentDetails")
 	if err != nil {
 		return []models.Student{}, err
 	}
@@ -31,7 +31,7 @@ func (db Sqldb) GetAll() ([]models.Student, error) {
 
 func (db Sqldb) Get(rollNo string) (models.Student, error) {
 	var m models.Student
-	query := fmt.Sprintf("Select * from studentDetails where rollNo = %v", rollNo)
+	query := fmt.Sprintf("SELECT * FROM studentDetails WHERE rollNo = %v", rollNo)
 	row := db.QueryRow(query)
 	err2 := row.Scan(&m.Name, &m.Age, &m.RollNo)
 	if err2 != nil {
@@ -41,9 +41,12 @@ func (db Sqldb) Get(rollNo string) (models.Student, error) {
 }
 
 func (db Sqldb) Delete(rollNo string) error {
-	query := fmt.Sprintf(`Delete from studentDetails where RollNo=%s`, rollNo)
+	query := fmt.Sprintf(`DELETE FROM studentDetails WHERE RollNo=%s`, rollNo)
 	_, err := db.Exec(query)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db Sqldb) Insert(p models.Student) error {

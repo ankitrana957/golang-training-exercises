@@ -19,7 +19,8 @@ type datastore interface {
 	Update(models.Student) error
 }
 
-func CreateAHandler(db datastore) studentHandler {
+// Factory
+func CreateHandler(db datastore) studentHandler {
 	return studentHandler{db}
 }
 
@@ -36,7 +37,7 @@ func (h studentHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(s)
-	return
+
 }
 
 func (h studentHandler) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +74,7 @@ func (h studentHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprint(w, "Successfully Deleted")
-	return
+
 }
 
 func (h studentHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -101,5 +102,5 @@ func (h studentHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintln(w, "SuccessFull Put Request")
-	return
+
 }
