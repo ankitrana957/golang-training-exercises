@@ -144,7 +144,7 @@ func TestInsert(t *testing.T) {
 			tt.mockCall(mock)
 			err := sqldb.Insert(tt.want)
 			if (err != nil) && err.Error() != tt.wantErr.Error() {
-				t.Errorf("Sqldb.Delete() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Sqldb.Insert() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -173,7 +173,7 @@ func TestUpdate(t *testing.T) {
 			tt.mockCall(mock)
 			err := sqldb.Update(tt.want)
 			if (err != nil) && err.Error() != tt.wantErr.Error() {
-				t.Errorf("Sqldb.Delete() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Sqldb.Update() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

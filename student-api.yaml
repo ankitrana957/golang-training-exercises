@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: Student Deatils - OpenAPI 3.0
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+
+servers:
+  - url: http://localhost:8000
+    variables: {}
+tags:
+  - name: student-api
+    description: Everything about students
+paths:
+  /student/{rollNo}:
+    delete:
+      tags:
+        - student-api
+      summary: Deletes a student
+      description: delete a student
+      operationId: Delete
+      parameters:
+        - name: rollNo
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid pet value
+    get:
+      tags:
+        - student-api
+      summary: Find student by RollNo
+      description: Returns a single student
+      operationId: Get
+      parameters:
+        - name: rollNo
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/student-api'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Student not found
+    put:
+      tags:
+        - student-api
+      summary: Update an existing student
+      description: Update an existing student by Id
+      operationId: Update
+      requestBody:
+        description: Update an existent student in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/student-api'
+        required: true
+      parameters:
+        - name: rollNo
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/student-api'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+        '405':
+          description: Validation exception
+
+  /student:
+    get:
+      tags:
+        - student-api
+      summary: Fetch all the students
+      operationId: GetAll
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/student-api'
+        '400':
+          description: Invalid status value
+    
+    post:
+      tags:
+        - student-api
+      summary: Add a new student to the store
+      description: Add a new student to the store
+      operationId: Create
+      requestBody:
+        description: Create a new student in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/student-api'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/student-api'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/student-api'
+        '405':
+          description: Invalid input
+  
+
+components:
+  schemas:
+    student-api:
+      type: object
+      properties:
+        RollNo:
+          type: integer
+          format: int64
+          example: 10
+        Name:
+          type: string
+          format: string
+          example: Marine
+        Age:
+          type: number
+          format: float
+          example: 7
+      xml:
+        name: order
