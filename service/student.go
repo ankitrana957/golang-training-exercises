@@ -47,12 +47,12 @@ func (s StudentEnrollmentService) PostValidation(data models.Student) error {
 
 func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
 	roll := strconv.Itoa(rollNo)
-	stu, err := s.GetValidation(roll)
+	stu, err := s.db.GetStudent(roll)
 	if err != nil {
 		return err
 	}
 	sub, err1 := s.subject.GetValidation(id)
-	if err != nil {
+	if err1 != nil {
 		return err1
 	}
 	record := models.Record{

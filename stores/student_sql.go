@@ -23,8 +23,7 @@ func (db SqlDb) GetStudent(rollNo string) (models.Student, error) {
 }
 
 func (db SqlDb) InsertStudent(p models.Student) error {
-	query := fmt.Sprintf(`INSERT INTO studentDetails VALUES ("%s",%d,%d)`, p.Name, p.Age, p.RollNo)
-	_, err := db.Exec(query)
+	_, err := db.Exec(`INSERT INTO studentDetails VALUES (?,?,?)`, p.Name, p.Age, p.RollNo)
 	if err != nil {
 		return err
 	}

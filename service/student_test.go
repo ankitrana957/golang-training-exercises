@@ -107,6 +107,8 @@ func TestStudentEnrollmentService_Enroll(t *testing.T) {
 		enrollment enrollmentServiceSample
 		subject    subjectServiceSample
 	}
+	stud := models.Student{Name: "Ankit", Age: 21, RollNo: 1}
+	sub := models.Subject{Name: "Science", Id: 1}
 	tests := []struct {
 		name      string
 		fields    fields
@@ -117,7 +119,25 @@ func TestStudentEnrollmentService_Enroll(t *testing.T) {
 		wantErr   error
 		want      string
 	}{
-		{name: "Successful Creation of record", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, s: models.Student{Name: "Ankit", Age: 21, RollNo: 1}, id: 1, rollNo: 1, mockCalls: []interface{}{}},
+		{name: "Successful Creation of record", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, s: models.Student{Name: "Ankit", Age: 21, RollNo: 1}, id: 1, rollNo: 1, mockCalls: []interface{}{
+			mockdb.EXPECT().GetStudent(gomock.Any()).Return(stud, nil),
+			mockSubjectService.EXPECT().GetValidation(gomock.All()).Return(sub, nil),
+			mockEnrollmentService.EXPECT().Insert(gomock.Any()).Return(nil),
+		}},
+		{name: "Student is not valid", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, s: models.Student{Name: "Ankit", Age: 21, RollNo: 1}, id: 1, rollNo: 1, mockCalls: []interface{}{
+			mockdb.EXPECT().GetStudent(gomock.Any()).Return(stud, errors.New("Student doesn't found")),
+		}, wantErr: errors.New("Student doesn't found")},
+
+		{name: "Subject is not valid", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, s: models.Student{Name: "Ankit", Age: 21, RollNo: 1}, id: 1, rollNo: 1, mockCalls: []interface{}{
+			mockdb.EXPECT().GetStudent(gomock.Any()).Return(stud, nil),
+			mockSubjectService.EXPECT().GetValidation(gomock.Any()).Return(models.Subject{}, errors.New("Subject doesn't exist")),
+		}, wantErr: errors.New("Subject doesn't exist")},
+
+		{name: "Record Insertion Failed", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, s: models.Student{Name: "Ankit", Age: 21, RollNo: 1}, id: 1, rollNo: 1, mockCalls: []interface{}{
+			mockdb.EXPECT().GetStudent(gomock.Any()).Return(stud, nil),
+			mockSubjectService.EXPECT().GetValidation(gomock.All()).Return(sub, nil),
+			mockEnrollmentService.EXPECT().Insert(gomock.Any()).Return(errors.New("Record Insertion Failed")),
+		}, wantErr: errors.New("Record Insertion Failed")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -34,6 +34,20 @@ func (m *Mockstudentdatastore) EXPECT() *MockstudentdatastoreMockRecorder {
 	return m.recorder
 }
 
+// ExistStudent mocks base method.
+func (m *Mockstudentdatastore) ExistStudent(rollNo int) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistStudent", rollNo)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ExistStudent indicates an expected call of ExistStudent.
+func (mr *MockstudentdatastoreMockRecorder) ExistStudent(rollNo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistStudent", reflect.TypeOf((*Mockstudentdatastore)(nil).ExistStudent), rollNo)
+}
+
 // GetStudent mocks base method.
 func (m *Mockstudentdatastore) GetStudent(arg0 string) (models.Student, error) {
 	m.ctrl.T.Helper()
