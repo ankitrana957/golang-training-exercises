@@ -10,9 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
-
+	gomock "github.com/golang/mock/gomock"
 	models "github.com/student-api/models"
 )
 
@@ -25,205 +23,136 @@ func getRequestResponse(w httptest.ResponseRecorder) (result string) {
 	return
 }
 
-func TestGet(t *testing.T) {
+func TestStudentGet(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	vars := map[string]string{
-		"id": "8",
+	mockStudentService := NewMockstudentEnrollmentService(ctrl)
+
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
 	}
-	mockdatastore := NewMockdatastore(ctrl)
-	h := studentHandler{db: mockdatastore}
+
 	s := models.Student{Name: "Ankit", Age: 21, RollNo: 2}
-	test := []struct {
+
+	tests := []struct {
 		name     string
-		w        *httptest.ResponseRecorder
-		r        *http.Request
+		serv     studentEnrollmentService
+		args     args
 		mockCall []interface{}
 		want     string
 	}{
-		{name: "Student Found", w: httptest.NewRecorder(), r: mux.SetURLVars(httptest.NewRequest(http.MethodGet, "/student", nil), vars), want: `{"Name":"Ankit","Age":21,"RollNo":2}`, mockCall: []interface{}{
-			mockdatastore.EXPECT().Get(vars["id"]).Return(s, nil),
-		}},
-		{name: "Student Doesn't Found", w: httptest.NewRecorder(), r: mux.SetURLVars(httptest.NewRequest(http.MethodGet, "/student", nil), vars), want: `Got an error`, mockCall: []interface{}{
-			mockdatastore.EXPECT().Get(vars["id"]).Return(models.Student{}, errors.New("Got an error")),
-		}},
-	}
-	for _, tt := range test {
-		h.Get(tt.w, tt.r)
-		result := getRequestResponse(*tt.w)
-		if !reflect.DeepEqual(tt.want, result) {
-			t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
-		}
-	}
-}
-
-func TestGetAll(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	h := studentHandler{
-		db: mockdatastore,
-	}
-	student := []models.Student{
-		{Name: "Ankit", Age: 21, RollNo: 1},
-		{Name: "Amit", Age: 21, RollNo: 2},
-	}
-	test := []struct {
-		name     string
-		w        *httptest.ResponseRecorder
-		r        *http.Request
-		mockCall []interface{}
-		want     string
-	}{
-		{name: "Students Found", w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student", nil), want: `[{"Name":"Ankit","Age":21,"RollNo":1},{"Name":"Amit","Age":21,"RollNo":2}]`, mockCall: []interface{}{
-			mockdatastore.EXPECT().GetAll().Return(student, nil),
-		}},
-		{name: "Students Doesn't Found", w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student", nil), want: `Error in getting response`, mockCall: []interface{}{
-			mockdatastore.EXPECT().GetAll().Return(student, errors.New("Error in getting response")),
-		}},
-	}
-
-	for _, tt := range test {
-		h.GetAll(tt.w, tt.r)
-		result := getRequestResponse(*tt.w)
-		if !reflect.DeepEqual(result, tt.want) {
-			t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
-		}
-	}
-}
-
-func TestCreate(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-
-	h := studentHandler{db: mockdatastore}
-	test := []struct {
-		name     string
-		w        *httptest.ResponseRecorder
-		r        *http.Request
-		mockCall []interface{}
-		want     string
-	}{
-		{
-			name: "Student Inserted", w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1}`))), want: `Succesfully Inserted`, mockCall: []interface{}{
-				mockdatastore.EXPECT().Insert(models.Student{Name: "Ankit", Age: 21, RollNo: 1}).Return(nil),
-			}},
-		{
-			name: "Invalid JSON Format", w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1`))), want: `Invalid JSON Format`, mockCall: []interface{}{},
+		{name: "Student Found", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student?rollNo=1", nil)}, mockCall: []interface{}{
+			mockStudentService.EXPECT().GetValidation(gomock.All()).Return(s, nil),
+		}, want: `{"Name":"Ankit","Age":21,"RollNo":2}`,
 		},
+		{name: "Student Not Found", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student?rollNo=1", nil)}, mockCall: []interface{}{
+			mockStudentService.EXPECT().GetValidation(gomock.All()).Return(models.Student{}, errors.New("Student doesn't exist")),
+		}, want: `Student doesn't exist`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := serviceHandler{
+				serv: tt.serv,
+			}
+			h.Get(tt.args.w, tt.args.r)
+			result := getRequestResponse(*tt.args.w)
+			if !reflect.DeepEqual(tt.want, result) {
+				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func TestStudentCreate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockStudentService := NewMockstudentEnrollmentService(ctrl)
+
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
+	}
+
+	tests := []struct {
+		name      string
+		serv      studentEnrollmentService
+		args      args
+		mockCalls []interface{}
+		want      string
+	}{
 		{
-			name: "Error Occured", w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1}`))), want: `Some Error`, mockCall: []interface{}{
-				mockdatastore.EXPECT().Insert(models.Student{Name: "Ankit", Age: 21, RollNo: 1}).Return(errors.New("Some Error")),
+			name: "Successfully Inserted", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1}`)))},
+			mockCalls: []interface{}{
+				mockStudentService.EXPECT().PostValidation(models.Student{Name: "Ankit", Age: 21, RollNo: 1}).Return(nil),
 			},
+			want: "Successfully Inserted",
+		},
+		{
+			name: "Invalid Json Format", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1`)))},
+			want: "Invalid JSON Format",
+		},
+		{
+			name: "Insertion Failed", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student", bytes.NewBuffer([]byte(`{"Name":"Ankit","Age":21,"RollNo":1}`)))},
+			mockCalls: []interface{}{
+				mockStudentService.EXPECT().PostValidation(models.Student{Name: "Ankit", Age: 21, RollNo: 1}).Return(errors.New("Failed to insert data")),
+			},
+			want: "Failed to insert data",
 		},
 	}
-	for _, tt := range test {
-		h.Create(tt.w, tt.r)
-		result := getRequestResponse(*tt.w)
-		if !reflect.DeepEqual(result, tt.want) {
-			t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
-		}
-	}
-
-}
-
-func TestDelete(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	vars := map[string]string{
-		"id": "8",
-	}
-	w := httptest.NewRecorder()
-	r := mux.SetURLVars(httptest.NewRequest(http.MethodDelete, "/student", nil), vars)
-	mockdatastore.EXPECT().Delete(vars["id"]).Return(nil)
-	h := studentHandler{db: mockdatastore}
-	h.Delete(w, r)
-
-	want := "Successfully Deleted"
-	result := getRequestResponse(*w)
-
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("TestGet Failed...Expected %v and Got %v", want, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := serviceHandler{
+				serv: tt.serv,
+			}
+			h.Create(tt.args.w, tt.args.r)
+			result := getRequestResponse(*tt.args.w)
+			if !reflect.DeepEqual(tt.want, result) {
+				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
+			}
+		})
 	}
 }
 
-func TestDeleteErr(t *testing.T) {
+func TestEnrollStudent(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	vars := map[string]string{
-		"id": "8",
-	}
-	w := httptest.NewRecorder()
-	r := mux.SetURLVars(httptest.NewRequest(http.MethodDelete, "/student", nil), vars)
-	mockdatastore.EXPECT().Delete(vars["id"]).Return(errors.New("Deletion Failed"))
-	h := studentHandler{db: mockdatastore}
-	h.Delete(w, r)
+	defer ctrl.Finish()
+	mockStudentService := NewMockstudentEnrollmentService(ctrl)
 
-	want := "Deletion Failed"
-	result := getRequestResponse(*w)
-
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("TestGet Failed...Expected %v and Got %v", want, result)
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
 	}
-}
-
-func TestUpdate(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	vars := map[string]string{
-		"id": "8",
+	tests := []struct {
+		name     string
+		serv     studentEnrollmentService
+		args     args
+		mockCall []interface{}
+		want     string
+	}{
+		{
+			name: "Succesfully Enrolled Student", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student/1/subject/2", nil)}, mockCall: []interface{}{
+				mockStudentService.EXPECT().Enroll(gomock.Any(), gomock.Any()).Return(nil),
+			},
+			want: "Succesfully Enrolled Student with Subject",
+		},
+		{
+			name: "Fail to Enroll Student", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodPost, "/student/1/subject/2", nil)}, mockCall: []interface{}{
+				mockStudentService.EXPECT().Enroll(gomock.Any(), gomock.Any()).Return(errors.New("Failed to Enroll Student")),
+			},
+			want: "Failed to Enroll Student",
+		},
 	}
-	payload := `{"Name":"Ankit","Age":21}`
-	want := `SuccessFull Put Request`
-	w := httptest.NewRecorder()
-	r := mux.SetURLVars(httptest.NewRequest(http.MethodPut, "/student", bytes.NewBuffer([]byte(payload))), vars)
-	mockdatastore.EXPECT().Update(models.Student{Name: "Ankit", Age: 21, RollNo: 8}).Return(nil)
-	h := studentHandler{
-		db: mockdatastore,
-	}
-	h.Update(w, r)
-	result := getRequestResponse(*w)
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("TestGet Failed...Expected %v and Got %v", want, result)
-	}
-}
-
-func TestUpdateErr1(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	vars := map[string]string{
-		"id": "8",
-	}
-	payload := `{"Name":"Ankit","Age":21`
-	want := `Invalid JSON Format`
-	w := httptest.NewRecorder()
-	r := mux.SetURLVars(httptest.NewRequest(http.MethodPut, "/student", bytes.NewBuffer([]byte(payload))), vars)
-	h := studentHandler{
-		db: mockdatastore,
-	}
-	h.Update(w, r)
-	result := getRequestResponse(*w)
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("TestGet Failed...Expected %v and Got %v", want, result)
-	}
-}
-
-func TestUpdateErr2(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockdatastore := NewMockdatastore(ctrl)
-	vars := map[string]string{
-		"id": "8",
-	}
-	payload := `{"Name":"Ankit","Age":21}`
-	want := `Updation Failed`
-	w := httptest.NewRecorder()
-	r := mux.SetURLVars(httptest.NewRequest(http.MethodPut, "/student", bytes.NewBuffer([]byte(payload))), vars)
-	mockdatastore.EXPECT().Update(models.Student{Name: "Ankit", Age: 21, RollNo: 8}).Return(errors.New("Updation Failed"))
-	h := studentHandler{
-		db: mockdatastore,
-	}
-	h.Update(w, r)
-	result := getRequestResponse(*w)
-	if !reflect.DeepEqual(want, result) {
-		t.Errorf("TestGet Failed...Expected %v and Got %v", want, result)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := serviceHandler{
+				serv: tt.serv,
+			}
+			s.EnrollStudent(tt.args.w, tt.args.r)
+			result := getRequestResponse(*tt.args.w)
+			if !reflect.DeepEqual(tt.want, result) {
+				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
+			}
+		})
 	}
 }

@@ -11,27 +11,24 @@ import (
 	"github.com/student-api/models"
 )
 
-type datastore interface {
-	Insert(models.Student) error
-	GetAll() ([]models.Student, error)
-	Get(string) (models.Student, error)
-	Delete(string) error
-	Update(models.Student) error
+type studentEnrollmentService interface {
+	GetValidation(rollNo string) (models.Student, error)
+	PostValidation(models.Student) error
+	Enroll(id, rollNo int) error
+}
+
+type serviceHandler struct {
+	serv studentEnrollmentService
 }
 
 // Factory
-func CreateHandler(db datastore) studentHandler {
-	return studentHandler{db}
+func NewStudentHandler(serv studentEnrollmentService) serviceHandler {
+	return serviceHandler{serv}
 }
 
-type studentHandler struct {
-	db datastore
-}
-
-func (h studentHandler) Get(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
-	s, err := h.db.Get(id)
+func (h serviceHandler) Get(w http.ResponseWriter, r *http.Request) {
+	rollNo := r.URL.Query().Get("rollNo")
+	s, err := h.serv.GetValidation(rollNo)
 	if err != nil {
 		fmt.Fprint(w, err)
 		return
@@ -40,16 +37,7 @@ func (h studentHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h studentHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	s, err := h.db.GetAll()
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-	json.NewEncoder(w).Encode(s)
-}
-
-func (h studentHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h serviceHandler) Create(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 	s := models.Student{}
 	err1 := json.Unmarshal(data, &s)
@@ -57,50 +45,22 @@ func (h studentHandler) Create(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Invalid JSON Format")
 		return
 	}
-	err2 := h.db.Insert(s)
+	err2 := h.serv.PostValidation(s)
 	if err2 != nil {
 		fmt.Fprint(w, err2)
 		return
 	}
-	fmt.Fprint(w, "Succesfully Inserted")
+	fmt.Fprint(w, "Successfully Inserted")
 }
 
-func (h studentHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (s serviceHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	id := params["id"]
-	err := h.db.Delete(id)
+	id, _ := strconv.Atoi(params["id"])
+	rollNo, _ := strconv.Atoi(params["rollNo"])
+	err := s.serv.Enroll(id, rollNo)
 	if err != nil {
-		fmt.Fprint(w, "Deletion Failed")
+		fmt.Fprint(w, "Failed to Enroll Student")
 		return
 	}
-	fmt.Fprint(w, "Successfully Deleted")
-
-}
-
-func (h studentHandler) Update(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
-	data, _ := io.ReadAll(r.Body)
-	newData := struct {
-		Name string
-		Age  int
-	}{}
-	err2 := json.Unmarshal(data, &newData)
-	if err2 != nil {
-		fmt.Fprintln(w, "Invalid JSON Format")
-		return
-	}
-	convertedId, _ := strconv.Atoi(id)
-	s := models.Student{
-		Name:   newData.Name,
-		Age:    newData.Age,
-		RollNo: convertedId,
-	}
-	err3 := h.db.Update(s)
-	if err3 != nil {
-		fmt.Fprintln(w, "Updation Failed")
-		return
-	}
-	fmt.Fprintln(w, "SuccessFull Put Request")
-
+	fmt.Fprint(w, "Succesfully Enrolled Student with Subject")
 }
