@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	gomock "github.com/golang/mock/gomock"
+
 	models "github.com/student-api/models"
 )
 
@@ -55,7 +56,7 @@ func TestStudentGet(t *testing.T) {
 			h := serviceHandler{
 				serv: tt.serv,
 			}
-			h.Get(tt.args.w, tt.args.r)
+			h.GetStudent(tt.args.w, tt.args.r)
 			result := getRequestResponse(*tt.args.w)
 			if !reflect.DeepEqual(tt.want, result) {
 				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
@@ -105,7 +106,7 @@ func TestStudentCreate(t *testing.T) {
 			h := serviceHandler{
 				serv: tt.serv,
 			}
-			h.Create(tt.args.w, tt.args.r)
+			h.InsertStudent(tt.args.w, tt.args.r)
 			result := getRequestResponse(*tt.args.w)
 			if !reflect.DeepEqual(tt.want, result) {
 				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
@@ -149,6 +150,45 @@ func TestEnrollStudent(t *testing.T) {
 				serv: tt.serv,
 			}
 			s.EnrollStudent(tt.args.w, tt.args.r)
+			result := getRequestResponse(*tt.args.w)
+			if !reflect.DeepEqual(tt.want, result) {
+				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)
+			}
+		})
+	}
+}
+
+func TestGetAllSubs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockStudentService := NewMockstudentEnrollmentService(ctrl)
+
+	type args struct {
+		w *httptest.ResponseRecorder
+		r *http.Request
+	}
+	tests := []struct {
+		name      string
+		serv      studentEnrollmentService
+		args      args
+		mockCalls []interface{}
+		want      string
+	}{
+		{name: "Get Subjects", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student/1/subject", nil)}, mockCalls: []interface {
+		}{
+			mockStudentService.EXPECT().GetSubs(gomock.Any()).Return([]string{"English", "Science"}, nil),
+		}, want: `[English Science]`},
+		{name: "Failed to get Student", serv: mockStudentService, args: args{w: httptest.NewRecorder(), r: httptest.NewRequest(http.MethodGet, "/student/1/subject", nil)}, mockCalls: []interface {
+		}{
+			mockStudentService.EXPECT().GetSubs(gomock.Any()).Return(nil, errors.New("Student Doesn't exist")),
+		}, want: `Student Doesn't exist`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := serviceHandler{
+				serv: tt.serv,
+			}
+			s.GetAllSubs(tt.args.w, tt.args.r)
 			result := getRequestResponse(*tt.args.w)
 			if !reflect.DeepEqual(tt.want, result) {
 				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)

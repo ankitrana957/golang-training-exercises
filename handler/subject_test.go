@@ -46,7 +46,7 @@ func TestCreateSubject(t *testing.T) {
 			s := subService{
 				serv: tt.serv,
 			}
-			s.CreateSubject(tt.args.w, tt.args.r)
+			s.InsertSubject(tt.args.w, tt.args.r)
 			result := getRequestResponse(*tt.args.w)
 			if !reflect.DeepEqual(tt.want, result) {
 				t.Errorf("TestGet Failed...Expected %v and Got %v", tt.want, result)

@@ -6,6 +6,7 @@ import (
 
 type recordstore interface {
 	InsertRecord(sub models.Record) error
+	GetAllSubjects(rollNo string) ([]int, error)
 }
 
 type enrollmentService struct {
@@ -23,4 +24,12 @@ func (e enrollmentService) Insert(sub models.Record) error {
 		return err
 	}
 	return nil
+}
+
+func (e enrollmentService) GetSubs(rollNo string) ([]int, error) {
+	a, err := e.rs.GetAllSubjects(rollNo)
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/student-api/models"
 )
 
+// Get Subject with the given id
 func (db SqlDb) GetSubject(id int) (models.Subject, error) {
 	row := db.QueryRow(`SELECT * FROM subject where id=?`, id)
 	res := models.Subject{}
@@ -14,6 +15,7 @@ func (db SqlDb) GetSubject(id int) (models.Subject, error) {
 	return res, nil
 }
 
+// Insert Subject to the record database
 func (db SqlDb) InsertSubject(sub models.Subject) error {
 	_, err := db.Exec(`INSERT INTO subject VALUES (?,?)`, sub.Name, sub.Id)
 	if err != nil {

@@ -34,20 +34,6 @@ func (m *Mockstudentdatastore) EXPECT() *MockstudentdatastoreMockRecorder {
 	return m.recorder
 }
 
-// ExistStudent mocks base method.
-func (m *Mockstudentdatastore) ExistStudent(rollNo int) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExistStudent", rollNo)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ExistStudent indicates an expected call of ExistStudent.
-func (mr *MockstudentdatastoreMockRecorder) ExistStudent(rollNo interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistStudent", reflect.TypeOf((*Mockstudentdatastore)(nil).ExistStudent), rollNo)
-}
-
 // GetStudent mocks base method.
 func (m *Mockstudentdatastore) GetStudent(arg0 string) (models.Student, error) {
 	m.ctrl.T.Helper()
@@ -98,6 +84,21 @@ func NewMockenrollmentServiceSample(ctrl *gomock.Controller) *MockenrollmentServ
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockenrollmentServiceSample) EXPECT() *MockenrollmentServiceSampleMockRecorder {
 	return m.recorder
+}
+
+// GetSubs mocks base method.
+func (m *MockenrollmentServiceSample) GetSubs(rollNo string) ([]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubs", rollNo)
+	ret0, _ := ret[0].([]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubs indicates an expected call of GetSubs.
+func (mr *MockenrollmentServiceSampleMockRecorder) GetSubs(rollNo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubs", reflect.TypeOf((*MockenrollmentServiceSample)(nil).GetSubs), rollNo)
 }
 
 // Insert mocks base method.

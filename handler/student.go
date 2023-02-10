@@ -15,6 +15,7 @@ type studentEnrollmentService interface {
 	GetValidation(rollNo string) (models.Student, error)
 	PostValidation(models.Student) error
 	Enroll(id, rollNo int) error
+	GetSubs(rollNo string) ([]string, error)
 }
 
 type serviceHandler struct {
@@ -26,7 +27,7 @@ func NewStudentHandler(serv studentEnrollmentService) serviceHandler {
 	return serviceHandler{serv}
 }
 
-func (h serviceHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (h serviceHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 	rollNo := r.URL.Query().Get("rollNo")
 	s, err := h.serv.GetValidation(rollNo)
 	if err != nil {
@@ -37,7 +38,7 @@ func (h serviceHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h serviceHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h serviceHandler) InsertStudent(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 	s := models.Student{}
 	err1 := json.Unmarshal(data, &s)
@@ -63,4 +64,15 @@ func (s serviceHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprint(w, "Succesfully Enrolled Student with Subject")
+}
+
+func (s serviceHandler) GetAllSubs(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	rollNo, _ := params["rollNo"]
+	res, err := s.serv.GetSubs(rollNo)
+	if err != nil {
+		fmt.Fprint(w, err.Error())
+		return
+	}
+	fmt.Fprint(w, res)
 }

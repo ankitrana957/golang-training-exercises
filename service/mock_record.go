@@ -34,6 +34,21 @@ func (m *Mockrecordstore) EXPECT() *MockrecordstoreMockRecorder {
 	return m.recorder
 }
 
+// GetAllSubjects mocks base method.
+func (m *Mockrecordstore) GetAllSubjects(rollNo string) ([]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllSubjects", rollNo)
+	ret0, _ := ret[0].([]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllSubjects indicates an expected call of GetAllSubjects.
+func (mr *MockrecordstoreMockRecorder) GetAllSubjects(rollNo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllSubjects", reflect.TypeOf((*Mockrecordstore)(nil).GetAllSubjects), rollNo)
+}
+
 // InsertRecord mocks base method.
 func (m *Mockrecordstore) InsertRecord(sub models.Record) error {
 	m.ctrl.T.Helper()

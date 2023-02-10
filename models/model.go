@@ -12,8 +12,10 @@ type Subject struct {
 }
 
 type Record struct {
-	Student string
-	RollNo  int
-	Id      int
+	RollNo int
+	Id     int
+}
+
+type SubName struct {
 	Subject string
 }

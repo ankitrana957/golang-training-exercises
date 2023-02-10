@@ -23,7 +23,7 @@ func NewSubHandler(serv subjectHandler) subService {
 	return subService{serv}
 }
 
-func (s subService) CreateSubject(w http.ResponseWriter, r *http.Request) {
+func (s subService) InsertSubject(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 
 	sub := models.Subject{}

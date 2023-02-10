@@ -154,3 +154,48 @@ func TestStudentEnrollmentService_Enroll(t *testing.T) {
 		})
 	}
 }
+
+func TestGetSubs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockdb := NewMockstudentdatastore(ctrl)
+	mockEnrollmentService := NewMockenrollmentServiceSample(ctrl)
+	mockSubjectService := NewMocksubjectServiceSample(ctrl)
+	type fields struct {
+		db         studentdatastore
+		enrollment enrollmentServiceSample
+		subject    subjectServiceSample
+	}
+	s :=
+		models.Subject{Name: "Science", Id: 1}
+	tests := []struct {
+		name      string
+		fields    fields
+		rollNo    string
+		mockCalls []interface{}
+		wantErr   error
+		want      []string
+	}{
+		{name: "Successful Got Records", fields: fields{db: mockdb, enrollment: mockEnrollmentService, subject: mockSubjectService}, rollNo: "1", mockCalls: []interface{}{
+			mockEnrollmentService.EXPECT().GetSubs(gomock.Any()).Return([]int{1}, nil),
+			mockSubjectService.EXPECT().GetValidation(1).Return(s, nil),
+		}, want: []string{"Science"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := StudentEnrollmentService{
+				db:         tt.fields.db,
+				enrollment: tt.fields.enrollment,
+				subject:    tt.fields.subject,
+			}
+			studentNames, err := s.GetSubs(tt.rollNo)
+			if !reflect.DeepEqual(err, tt.wantErr) {
+				t.Errorf("StudentEnrollmentService.GetValidation() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(tt.want, studentNames) {
+				t.Errorf("StudentEnrollmentService.GetValidation() error = %v, wantErr %v", studentNames, tt.want)
+				return
+			}
+		})
+	}
+}

@@ -20,6 +20,7 @@ type StudentEnrollmentService struct {
 
 type enrollmentServiceSample interface {
 	Insert(sub models.Record) error
+	GetSubs(rollNo string) ([]int, error)
 }
 
 type subjectServiceSample interface {
@@ -56,10 +57,8 @@ func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
 		return err1
 	}
 	record := models.Record{
-		Student: stu.Name,
-		RollNo:  stu.RollNo,
-		Subject: sub.Name,
-		Id:      sub.Id,
+		RollNo: stu.RollNo,
+		Id:     sub.Id,
 	}
 	err3 := s.enrollment.Insert(record)
 
@@ -69,4 +68,14 @@ func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
 
 	return nil
 
+}
+
+func (s StudentEnrollmentService) GetSubs(rollNo string) ([]string, error) {
+	resp := []string{}
+	studentRolls, _ := s.enrollment.GetSubs(rollNo)
+	for _, c := range studentRolls {
+		subName, _ := s.subject.GetValidation(c)
+		resp = append(resp, subName.Name)
+	}
+	return resp, nil
 }
