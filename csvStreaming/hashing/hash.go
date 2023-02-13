@@ -7,14 +7,10 @@ import (
 	"github.com/personhashing/models"
 )
 
-func HashString(c chan models.Person, m chan models.Person) {
-	for i := range c {
-		newObj := i
-		hashValue := sha256.Sum256([]byte(newObj.Phone))
-		phonehash := fmt.Sprintf("%x", hashValue)
-		newObj.Phone = phonehash
-		m <- newObj
-	}
-
-	close(m)
+func HashString(i models.Person) models.Person {
+	newObj := i
+	hashValue := sha256.Sum256([]byte(newObj.Phone))
+	phonehash := fmt.Sprintf("%x", hashValue)
+	newObj.Phone = phonehash
+	return newObj
 }

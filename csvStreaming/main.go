@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/personhashing/filehandling"
@@ -10,21 +10,40 @@ import (
 	"github.com/personhashing/msgpadding"
 )
 
+func ServeHashing(c, m chan models.Person) {
+	for i := range c {
+		a := hashing.HashString(i)
+		m <- a
+	}
+	close(m)
+}
+
+func ServeMsg(m chan models.Person, k chan string) {
+	for j := range m {
+		a := msgpadding.MakeMsg(j)
+		k <- a
+	}
+	close(k)
+}
+
 func main() {
 	f, err1 := os.Open("input.csv")
-	outputFile, err2 := os.Create("output.csv")
 
-	if err1 != nil && err2 != nil {
-		fmt.Print(err1)
+	if err1 != nil {
+		log.Fatal(err1)
 	}
+	defer f.Close()
 
 	c := make(chan models.Person)
 	m := make(chan models.Person)
 	k := make(chan string)
 
+	outputFile, _ := os.Create("output.csv")
+	defer outputFile.Close()
+
 	go filehandling.ReadFromCSV(f, c)
-	go hashing.HashString(c, m)
-	go msgpadding.MakeMsg(m, k)
+	go ServeHashing(c, m)
+	go ServeMsg(m, k)
 
 	for i := range k {
 		filehandling.WriteToCSV(outputFile, i)
