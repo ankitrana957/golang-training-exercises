@@ -6,3 +6,8 @@ type Person struct {
 	Age   int
 	Phone string
 }
+
+func (p Person) SetHashPhone(phonehash string) Person {
+	p.Phone = phonehash
+	return p
+}
