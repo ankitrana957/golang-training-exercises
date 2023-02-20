@@ -17,10 +17,7 @@ func NewCSVWriter(w io.Writer) *csvWriter {
 
 func (w csvWriter) Write(data models.JSON) error {
 	a := []string{data["value"].(string)}
-	err := w.Writer.Write(a)
+	w.Writer.Write(a)
 	defer w.Flush()
-	if err != nil {
-		return err
-	}
 	return nil
 }
