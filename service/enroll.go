@@ -5,7 +5,7 @@ import (
 )
 
 type recordstore interface {
-	InsertRecord(sub models.Record) error
+	InsertRecord(sub models.Enroll) error
 	GetAllSubjects(rollNo string) ([]int, error)
 }
 
@@ -18,18 +18,11 @@ func NewEnrollmentStore(r recordstore) enrollmentService {
 	return enrollmentService{r}
 }
 
-func (e enrollmentService) Insert(sub models.Record) error {
-	err := e.rs.InsertRecord(sub)
-	if err != nil {
-		return err
-	}
-	return nil
+func (e enrollmentService) Insert(sub models.Enroll) error {
+	return e.rs.InsertRecord(sub)
+
 }
 
 func (e enrollmentService) GetSubs(rollNo string) ([]int, error) {
-	a, err := e.rs.GetAllSubjects(rollNo)
-	if err != nil {
-		return nil, err
-	}
-	return a, nil
+	return e.rs.GetAllSubjects(rollNo)
 }

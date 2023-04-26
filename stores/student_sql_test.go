@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			sql_db := SqlDb{db}
+			sql_db := StudentStore{db}
 			tt.mockCall(mock)
 			got, err := sql_db.GetStudent(tt.rollNo)
 			if (err != nil) && err.Error() != tt.wantErr.Error() {
@@ -62,7 +62,7 @@ func TestInsert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			sql_db := SqlDb{db}
+			sql_db := StudentStore{db}
 			tt.mockCall(mock)
 			err := sql_db.InsertStudent(tt.obj)
 			if (err != nil) && err.Error() != tt.wantErr.Error() {

@@ -6,12 +6,12 @@ import (
 	models "github.com/student-api/models"
 )
 
-type SqlDb struct {
+type StudentStore struct {
 	*sql.DB
 }
 
 // Get Student with the given roll no
-func (db SqlDb) GetStudent(rollNo string) (models.Student, error) {
+func (db StudentStore) GetStudent(rollNo string) (models.Student, error) {
 	var m models.Student
 	row := db.QueryRow(`SELECT * FROM studentDetails WHERE rollNo = ?`, rollNo)
 	err2 := row.Scan(&m.Name, &m.Age, &m.RollNo)
@@ -22,7 +22,7 @@ func (db SqlDb) GetStudent(rollNo string) (models.Student, error) {
 }
 
 // Insert Student to the studentDetails database
-func (db SqlDb) InsertStudent(p models.Student) error {
+func (db StudentStore) InsertStudent(p models.Student) error {
 	_, err := db.Exec(`INSERT INTO studentDetails VALUES (?,?,?)`, p.Name, p.Age, p.RollNo)
 	if err != nil {
 		return err

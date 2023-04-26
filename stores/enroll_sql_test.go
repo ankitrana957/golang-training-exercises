@@ -12,14 +12,14 @@ import (
 func TestInsertRecord(t *testing.T) {
 	tests := []struct {
 		name     string
-		obj      models.Record
+		obj      models.Enroll
 		wantErr  error
 		mockCall func(mock sqlmock.Sqlmock)
 	}{
-		{name: "Successful insertion of record", obj: models.Record{RollNo: 1, Id: 2}, mockCall: func(mock sqlmock.Sqlmock) {
+		{name: "Successful insertion of record", obj: models.Enroll{RollNo: 1, Id: 2}, mockCall: func(mock sqlmock.Sqlmock) {
 			mock.ExpectExec("INSERT").WillReturnResult(sqlmock.NewResult(1, 1))
 		}, wantErr: nil},
-		{name: "Unsuccessful insertion of record", obj: models.Record{RollNo: 1, Id: 2}, mockCall: func(mock sqlmock.Sqlmock) {
+		{name: "Unsuccessful insertion of record", obj: models.Enroll{RollNo: 1, Id: 2}, mockCall: func(mock sqlmock.Sqlmock) {
 			mock.ExpectExec("INSERT").WillReturnError(errors.New("Failed Insertion"))
 		}, wantErr: errors.New("Failed Insertion")},
 	}
@@ -27,7 +27,7 @@ func TestInsertRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			sql_db := SqlDb{db}
+			sql_db := EnrollmentStore{db}
 			tt.mockCall(mock)
 			err := sql_db.InsertRecord(tt.obj)
 			if !reflect.DeepEqual(err, tt.wantErr) {
@@ -57,7 +57,7 @@ func TestGetAllSubs(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			sql_db := SqlDb{db}
+			sql_db := EnrollmentStore{db}
 			tt.mockCall(mock)
 			got, err := sql_db.GetAllSubjects(tt.rollNo)
 			if !reflect.DeepEqual(err, tt.wantErr) {

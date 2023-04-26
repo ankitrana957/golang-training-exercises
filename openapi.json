@@ -50,7 +50,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/student"
                 }
               }
             }
@@ -77,7 +77,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/student-api"
+                "$ref": "#/components/schemas/student"
               }
             }
           },
@@ -89,12 +89,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/student"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/student"
                 }
               }
             }
@@ -130,7 +130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/subject"
                 }
               }
             }
@@ -157,7 +157,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/student-api"
+                "$ref": "#/components/schemas/subject"
               }
             }
           },
@@ -169,12 +169,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/subject"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/student-api"
+                  "$ref": "#/components/schemas/subject"
                 }
               }
             }
@@ -188,10 +188,51 @@
   },
   "components": {
     "schemas": {
-      "student-api": {
+      "student": {
         "type": "object",
         "properties": {
           "RollNo": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "Name": {
+            "type": "string",
+            "format": "string",
+            "example": "Ankit"
+          },
+          "Age": {
+            "type": "number",
+            "format": "float",
+            "example": 22
+          }
+        },
+        "xml": {
+          "name": "order"
+        }
+      },
+      "subject": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "Name": {
+            "type": "string",
+            "format": "string",
+            "example": "Science"
+          }
+        },
+        "xml": {
+          "name": "order"
+        }
+      },
+      "enrollment": {
+        "type": "object",
+        "properties": {
+          "Id": {
             "type": "integer",
             "format": "int64",
             "example": 10
@@ -200,11 +241,6 @@
             "type": "string",
             "format": "string",
             "example": "Marine"
-          },
-          "Age": {
-            "type": "number",
-            "format": "float",
-            "example": 7
           }
         },
         "xml": {

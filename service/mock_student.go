@@ -102,7 +102,7 @@ func (mr *MockenrollmentServiceSampleMockRecorder) GetSubs(rollNo interface{}) *
 }
 
 // Insert mocks base method.
-func (m *MockenrollmentServiceSample) Insert(sub models.Record) error {
+func (m *MockenrollmentServiceSample) Insert(sub models.Enroll) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Insert", sub)
 	ret0, _ := ret[0].(error)

@@ -53,7 +53,7 @@ func TestStudentGet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := serviceHandler{
+			h := studentHandler{
 				serv: tt.serv,
 			}
 			h.GetStudent(tt.args.w, tt.args.r)
@@ -103,7 +103,7 @@ func TestStudentCreate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := serviceHandler{
+			h := studentHandler{
 				serv: tt.serv,
 			}
 			h.InsertStudent(tt.args.w, tt.args.r)
@@ -146,7 +146,7 @@ func TestEnrollStudent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := serviceHandler{
+			s := studentHandler{
 				serv: tt.serv,
 			}
 			s.EnrollStudent(tt.args.w, tt.args.r)
@@ -185,7 +185,7 @@ func TestGetAllSubs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := serviceHandler{
+			s := studentHandler{
 				serv: tt.serv,
 			}
 			s.GetAllSubs(tt.args.w, tt.args.r)

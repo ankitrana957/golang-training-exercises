@@ -12,14 +12,14 @@ type studentdatastore interface {
 	GetStudent(string) (models.Student, error)
 }
 
-type StudentEnrollmentService struct {
+type StudentService struct {
 	db         studentdatastore
 	enrollment enrollmentServiceSample
 	subject    subjectServiceSample
 }
 
 type enrollmentServiceSample interface {
-	Insert(sub models.Record) error
+	Insert(sub models.Enroll) error
 	GetSubs(rollNo string) ([]int, error)
 }
 
@@ -28,25 +28,25 @@ type subjectServiceSample interface {
 	InsertValidation(sub models.Subject) error
 }
 
-func NewStudentService(db studentdatastore, enroll enrollmentServiceSample, sub subjectServiceSample) StudentEnrollmentService {
-	return StudentEnrollmentService{db, enroll, sub}
+func NewStudentService(db studentdatastore, enroll enrollmentServiceSample, sub subjectServiceSample) StudentService {
+	return StudentService{db, enroll, sub}
 }
 
-func (s StudentEnrollmentService) GetValidation(rollNo string) (models.Student, error) {
+func (s StudentService) GetValidation(rollNo string) (models.Student, error) {
 	if rollNo != "" {
 		return s.db.GetStudent(rollNo)
 	}
 	return models.Student{}, errors.New("RollNo is not given")
 }
 
-func (s StudentEnrollmentService) PostValidation(data models.Student) error {
+func (s StudentService) PostValidation(data models.Student) error {
 	if data.Name != "" && data.RollNo != 0 {
 		return s.db.InsertStudent(data)
 	}
 	return errors.New("RollNo and Name are mandatory")
 }
 
-func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
+func (s StudentService) Enroll(id, rollNo int) error {
 	roll := strconv.Itoa(rollNo)
 	stu, err := s.db.GetStudent(roll)
 	if err != nil {
@@ -56,7 +56,7 @@ func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
 	if err1 != nil {
 		return err1
 	}
-	record := models.Record{
+	record := models.Enroll{
 		RollNo: stu.RollNo,
 		Id:     sub.Id,
 	}
@@ -70,7 +70,7 @@ func (s StudentEnrollmentService) Enroll(id, rollNo int) error {
 
 }
 
-func (s StudentEnrollmentService) GetSubs(rollNo string) ([]string, error) {
+func (s StudentService) GetSubs(rollNo string) ([]string, error) {
 	resp := []string{}
 	studentRolls, _ := s.enrollment.GetSubs(rollNo)
 	for _, c := range studentRolls {

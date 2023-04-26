@@ -18,16 +18,16 @@ type studentEnrollmentService interface {
 	GetSubs(rollNo string) ([]string, error)
 }
 
-type serviceHandler struct {
+type studentHandler struct {
 	serv studentEnrollmentService
 }
 
 // Factory
-func NewStudentHandler(serv studentEnrollmentService) serviceHandler {
-	return serviceHandler{serv}
+func NewStudentHandler(serv studentEnrollmentService) studentHandler {
+	return studentHandler{serv}
 }
 
-func (h serviceHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
+func (h studentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 	rollNo := r.URL.Query().Get("rollNo")
 	s, err := h.serv.GetValidation(rollNo)
 	if err != nil {
@@ -38,7 +38,7 @@ func (h serviceHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h serviceHandler) InsertStudent(w http.ResponseWriter, r *http.Request) {
+func (h studentHandler) InsertStudent(w http.ResponseWriter, r *http.Request) {
 	data, _ := io.ReadAll(r.Body)
 	s := models.Student{}
 	err1 := json.Unmarshal(data, &s)
@@ -54,7 +54,7 @@ func (h serviceHandler) InsertStudent(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Successfully Inserted")
 }
 
-func (s serviceHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
+func (s studentHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, _ := strconv.Atoi(params["id"])
 	rollNo, _ := strconv.Atoi(params["rollNo"])
@@ -66,7 +66,7 @@ func (s serviceHandler) EnrollStudent(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Succesfully Enrolled Student with Subject")
 }
 
-func (s serviceHandler) GetAllSubs(w http.ResponseWriter, r *http.Request) {
+func (s studentHandler) GetAllSubs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	rollNo, _ := params["rollNo"]
 	res, err := s.serv.GetSubs(rollNo)
